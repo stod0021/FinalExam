@@ -29,8 +29,8 @@ void Fruit::Update(float dt)
   _transform.scale.z += scaleFactor;
 
   // If we've exceeded any bounds, then we need to flip and go in the opposite direction.
-  if ((_isGrowing == true && _transform.position.x >= _transform.position.x) ||
-	  (_isGrowing == false && _transform.position.y <= _transform.position.y))
+   if ((_isGrowing == true && _transform.scale.x >= _pulsateScale.y) ||
+	  (_isGrowing == false && _transform.scale.x <= _pulsateScale.x))
   {
     _isGrowing = !_isGrowing;
     _scaleRate *= -1.0f;
