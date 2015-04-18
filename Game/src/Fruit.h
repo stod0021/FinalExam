@@ -15,6 +15,9 @@ public:
   void Update(float dt);
   void Draw(Graphics *graphics, Matrix4x4 relativeTo, float dt);
 
+  void SetFruitPosition(Vector3 position);
+
+
 protected:
   Cube *_fruitGeometry;
 

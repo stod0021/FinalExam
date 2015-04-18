@@ -29,8 +29,8 @@ void Fruit::Update(float dt)
   _transform.scale.z += scaleFactor;
 
   // If we've exceeded any bounds, then we need to flip and go in the opposite direction.
-  if ((_isGrowing == true && _transform.scale.x >= _pulsateScale.y) ||
-    (_isGrowing == false && _transform.scale.x <= _pulsateScale.x))
+  if ((_isGrowing == true && _transform.position.x >= _transform.position.x) ||
+	  (_isGrowing == false && _transform.position.y <= _transform.position.y))
   {
     _isGrowing = !_isGrowing;
     _scaleRate *= -1.0f;
@@ -47,4 +47,8 @@ void Fruit::Update(float dt)
 void Fruit::Draw(Graphics *graphics, Matrix4x4 relativeTo, float dt)
 {
   _fruitGeometry->Draw(graphics, relativeTo, dt);
+}
+
+void Fruit::SetFruitPosition(Vector3 position){
+	_fruitGeometry->GetTransform().position = position;
 }

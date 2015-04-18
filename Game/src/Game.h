@@ -27,8 +27,9 @@ protected:
 
   Player *_player;
   Fruit *_fruit;
-  int currentScore;
 
+  int currentScore;
+  char _score[1000];
 
   Camera *_gameCamera;
 };

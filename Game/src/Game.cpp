@@ -6,7 +6,8 @@
 #include <SDL_opengl.h>
 #include <InputManager.h>
 #include <Graphics/GraphicsOpenGL.h>
-
+#include <stdlib.h>     
+#include <time.h>
 #include "Cube.h"
 #include <Cameras/Camera.h>
 #include <Cameras/PerspectiveCamera.h>
@@ -35,7 +36,17 @@ Game::Game() : GameEngine()
 Game::~Game()
 {
   // Clean up our pointers.
-  
+	
+	delete _gameCamera; // Delete game camera.
+	_gameCamera = nullptr;
+
+	_player->~Player(); // Deleting body nodes
+		_player = nullptr; 
+
+	 delete _fruit; // Detete fruit
+	_fruit = nullptr;
+
+	//_score[1000] = 0;
 }
 
 SDL_Renderer *_renderer;
@@ -43,11 +54,16 @@ SDL_Texture *_texture;
 
 void Game::InitializeImpl()
 {
-  SDL_SetWindowTitle(_window, "Game");
+	/* initialize random seed for fruit: */
+	srand(time(NULL));
+	currentScore = 0;
+	sprintf_s(_score, "Snake___Player Score %d",currentScore);
+	SDL_SetWindowTitle(_window, _score);
 
   float nearPlane = 0.01f;
   float farPlane = 100.0f;
-  Vector4 position(0, 0, 2.5f, 0.0f);
+
+  Vector4 position(0.0f, 0.0f, 2.5f, 0.0f);
   Vector4 lookAt = Vector4::Normalize(Vector4::Difference(Vector4(0.0f, 0.0f, 0.0f, 0.0f), position));
   Vector4 up(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -92,12 +108,41 @@ void Game::UpdateImpl(float dt)
     _player->SetHeadDirection(BodyNode::RIGHT);
   }
 
-  for (auto itr = _objects.begin(); itr != _objects.end(); itr++)
+
+  if ((_player->GetHeadPosition().x >= _fruit->GetTransform().position.x + 0.75) && (_player->GetHeadPosition().y >= _fruit->GetTransform().position.y - 0.75))
   {
-    (*itr)->Update(dt);
+	  _player->AddBodyPiece(_graphicsObject);	  
+	  Vector4 position(rand() % 18 + (-8), rand() % 18 + (-8), rand() % 18 + (-8), rand() % 18 + (-8));
+	  _fruit->SetFruitPosition(position);
+	  currentScore += 10;
+	  sprintf_s(_score, "Snake___Player Score %d", currentScore);
+	  SDL_SetWindowTitle(_window, _score);
   }
+ // printf("Player-X:%f,Y:%f\n", _player->GetHeadPosition().x, _player->GetHeadPosition().y);
+ // printf("Fruit-X:%f,Y:%f\n", _fruit->GetTransform().position.x, _fruit->GetTransform().position.y);
 
   // Do bounds checking.
+  if (_player->GetHeadPosition().x <= -8.75 )//left wall
+  {
+	  Reset();
+  }
+  if (_player->GetHeadPosition().y <= -8.75)//bottom wall
+  {
+	  Reset();
+  }
+  if (_player->GetHeadPosition().x >= 8.75)//right wall
+  {
+	  Reset();
+  }
+  if (_player->GetHeadPosition().y >= 8.75)//top wall
+  {
+	  Reset();
+  }
+  for (auto itr = _objects.begin(); itr != _objects.end(); itr++)
+  {
+	  (*itr)->Update(dt);
+  }
+
 }
 
 void Game::DrawImpl(Graphics *graphics, float dt)
@@ -137,4 +182,14 @@ void Game::CalculateCameraViewpoint(Camera *camera)
   glRotatef(cross.z * dot, 0.0f, 0.0f, 1.0f);
 
   glTranslatef(-camera->GetPosition().x, -camera->GetPosition().y, -camera->GetPosition().z);
+}
+
+void Game::Reset()
+{
+
+	printf("Game over\n");
+	
+	Vector4 _respawn(0.0f, 0.0f, 2.5f, 0.0f);
+	_player->SetHeadPosition(_respawn);
+	currentScore = 0;
 }
